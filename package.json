@@ -1,0 +1,27 @@
+{
+  "name": "mailgunbot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "watch": "./node_modules/.bin/nodemon"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sinfo/mailgunbot.git"
+  },
+  "author": "SINFO",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sinfo/mailgunbot/issues"
+  },
+  "homepage": "https://github.com/sinfo/mailgunbot#readme",
+  "dependencies": {
+    "hapi": "^17.6.0",
+    "mailgun-js": "^0.21.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.5"
+  }
+}

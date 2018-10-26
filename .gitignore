@@ -1,0 +1,8 @@
+node_modules
+keys/*
+data/*
+env.sh
+*.swp
+.vscode
+npm-debug.log
+package-lock.json
