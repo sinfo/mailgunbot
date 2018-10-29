@@ -18,7 +18,9 @@
   },
   "homepage": "https://github.com/sinfo/mailgunbot#readme",
   "dependencies": {
+    "handlebars": "^4.0.12",
     "hapi": "^17.6.0",
+    "logger": "0.0.1",
     "mailgun-js": "^0.21.0"
   },
   "devDependencies": {

@@ -1,15 +1,12 @@
 const path = require('path')
-const config = require(path.join(__dirname, '..', 'config'))
-const logger = require('logger').getLogger()
+const config = require(path.join(__dirname, '..', '..', 'config'))
+const logger = require(path.join(__dirname, '..', 'logger'))
 const fs = require('fs')
 const handlebars = require('handlebars')
 
-const API_KEY = config.MAILGUN.API_KEY
-const DOMAIN = config.MAILGUN.DOMAIN
-
 const mailgun = require('mailgun-js')({
-  apiKey: API_KEY,
-  domain: DOMAIN
+  apiKey: config.MAILGUN.API_KEY,
+  //domain: config.MAILGUN.DOMAIN
 })
 
 let template
@@ -24,22 +21,29 @@ fs.readFile(path.join(__dirname, 'email.html'), { encoding: 'UTF-8' }, (err, dat
 })
 
 function sendComunicationFromPartners (receivers, comunication) {
-  if (process.env.NODE_ENV !== 'production') { return }
+  //if (process.env.NODE_ENV !== 'production') { return }
 
-  receivers.push(config.COORDINATION_EMAIL)
+  //receivers.push(config.COORDINATION_EMAIL)
 
   receivers.forEach(receiver => {
     let data = {
       from: 'Mailgun <mailgun@sinfo.org>',
       to: receiver,
-      subject: '[SINFO] Comunication from partners - ' + comunication.topic,
+      subject: '[SINFO] Comunication from partners - ' + comunication.subject,
       html: template(comunication)
     }
 
+    console.log(1);
+
     mailgun.messages().send(data, function (error, body) {
-      if (error) { logger.error(error) }
-    })
+      if (error) { console.log(error) }
+        console.log(body);
+    });
+    console.log(2);
+
   })
+
+  return 3;
 }
 
 module.exports = {
