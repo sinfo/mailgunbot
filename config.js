@@ -11,7 +11,7 @@ const config = {
 
   MAILGUN: {
     API_KEY: process.env.MAILGUNBOT_MAILGUN_API_KEY,
-    DOMAIN: process.env.MAILGUNBOT_HOST || 'localhost'
+    DOMAIN: process.env.MAILGUNBOT_HOST || 'sinfo.org'
   },
 
   PARTNERS_RECAPTCHA: {
@@ -19,7 +19,7 @@ const config = {
   }
 }
 
-/*const logger = process.env.MAILGUNBOT_LOGENTRIES_TOKEN &&
+/* TODO const logger = process.env.MAILGUNBOT_LOGENTRIES_TOKEN &&
   config.MAILGUN.API_KEY &&
   process.env.NODE_ENV === 'production'
   ? require('logger').getLogger(

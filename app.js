@@ -4,6 +4,7 @@ const config = require(path.join(__dirname, '.', 'config'))
 const plugins = require(path.join(__dirname, '.', 'plugins'))
 const Hapi = require('hapi');
 const https = require('https');
+const Boom = require('boom');
 
 const server = Hapi.server({
     host: config.HOST,
@@ -13,6 +14,8 @@ const server = Hapi.server({
 async function register () {
   await server.register(plugins)
 }
+
+const receiversOfPartnersComunication = ['pedro.correia@sinfo.org']
 
 server.route({
     method: 'POST',
@@ -33,19 +36,23 @@ server.route({
           });
         });
 
-        req.on('error', function(e) {
-          return "Badrequest"
+        req.on('error', function(err) {
+          logger.error(err)
+          return Boom.boomify(err)
         });
 
-        if (!req.end()) {
+        if (req.end()) {
           // recaptcha is valid
           try {
-            return request.server.methods.mailgun.sendComunicationFromPartners(['pedro.correia.105@gmail.com'], request.payload);
+            request.server.methods.mailgun.sendComunicationFromPartners(receiversOfPartnersComunication, request.payload);
+            return {'message': 'Message sent'};
           } catch (err) {
-            return 'bad request';
+            logger.error(err)
+            return Boom.boomify(err)
           }
         } else {
-          return 'bad request';
+          // recaptcha is not valid
+            return Boom.unauthorized('reCaptcha not valid')
         }
     }
 });

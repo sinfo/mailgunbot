@@ -6,7 +6,7 @@ const handlebars = require('handlebars')
 
 const mailgun = require('mailgun-js')({
   apiKey: config.MAILGUN.API_KEY,
-  //domain: config.MAILGUN.DOMAIN
+  domain: config.MAILGUN.DOMAIN
 })
 
 let template
@@ -21,9 +21,9 @@ fs.readFile(path.join(__dirname, 'email.html'), { encoding: 'UTF-8' }, (err, dat
 })
 
 function sendComunicationFromPartners (receivers, comunication) {
-  //if (process.env.NODE_ENV !== 'production') { return }
+  //TODO if (process.env.NODE_ENV !== 'production') { return }
 
-  //receivers.push(config.COORDINATION_EMAIL)
+  //TODO receivers.push(config.COORDINATION_EMAIL)
 
   receivers.forEach(receiver => {
     let data = {
@@ -33,17 +33,10 @@ function sendComunicationFromPartners (receivers, comunication) {
       html: template(comunication)
     }
 
-    console.log(1);
-
     mailgun.messages().send(data, function (error, body) {
-      if (error) { console.log(error) }
-        console.log(body);
+      if (error) { logger.error(error) }
     });
-    console.log(2);
-
   })
-
-  return 3;
 }
 
 module.exports = {
