@@ -1,61 +1,53 @@
-'use strict';
 const path = require('path')
 const config = require(path.join(__dirname, '.', 'config'))
 const plugins = require(path.join(__dirname, '.', 'plugins'))
-const Hapi = require('hapi');
-const https = require('https');
-const Boom = require('boom');
-
+const Hapi = require('hapi')
+const rp = require('request-promise')
+const Boom = require('boom')
+const logger = require('logger').getLogger()
 const server = Hapi.server({
-    host: config.HOST,
-    port: config.PORT,
-});
+  host: config.HOST,
+  port: config.PORT
+})
 
 async function register () {
   await server.register(plugins)
 }
 
-const receiversOfPartnersComunication = ['pedro.correia@sinfo.org']
-
 server.route({
-    method: 'POST',
-    path: '/',
-    handler: (request, h) => {
-        var options = {
-          host: 'www.google.com',
-          port: 443,
-          path: '/recaptcha/api/siteverify?secret=' + config.PARTNERS_RECAPTCHA.SECRET_KEY + '&response=' + request.payload.recaptcha,
-          method: 'POST'
-        };
-
-        // send request to google to verify recaptcha code
-        var req = https.request(options, function(res) {
-          res.setEncoding('utf8');
-          res.on('data', function (chunk) {
-            return chunk.success;
-          });
-        });
-
-        req.on('error', function(err) {
-          logger.error(err)
-          return Boom.boomify(err)
-        });
-
-        if (req.end()) {
-          // recaptcha is valid
-          try {
-            request.server.methods.mailgun.sendComunicationFromPartners(receiversOfPartnersComunication, request.payload);
-            return {'message': 'Message sent'};
-          } catch (err) {
-            logger.error(err)
-            return Boom.boomify(err)
-          }
-        } else {
-          // recaptcha is not valid
-            return Boom.unauthorized('reCaptcha not valid')
-        }
+  config: {
+    cors: { origin: config.CORS }
+  },
+  method: 'POST',
+  path: '/',
+  handler: async (request, h) => {
+    logger.debug(request.payload)
+    var options = {
+      uri: `https://www.google.com/recaptcha/api/siteverify?secret=${config.RECAPTCHA_SECRET_KEY}&response=${request.payload.recaptcha}`,
+      method: 'POST',
+      json: true
     }
-});
+
+    const source = request.payload.source
+    const receivers = config.RECEIVERS
+
+    // send request to google to verify recaptcha code
+    try {
+      let res = await rp(options)
+
+      if (res.success) {
+        request.server.methods.mailgun
+          .send(source, receivers, request.payload)
+        return { success: true }
+      } else {
+        return Boom.unauthorized('reCaptcha not valid')
+      }
+    } catch (err) {
+      logger.error(err)
+      return Boom.boomify(err)
+    }
+  }
+})
 
 // Start the server
 async function start () {
@@ -63,9 +55,9 @@ async function start () {
     config.validate()
     await register()
     await server.start()
-    console.log(`Server running at: ${server.info.uri}`);
+    logger.info(`Server running at: ${server.info.uri}`)
   } catch (err) {
-    console.error('error', err)
+    logger.error('error', err)
     process.exit(1)
   }
 };

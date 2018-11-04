@@ -1,6 +1,6 @@
 const path = require('path')
 const config = require(path.join(__dirname, '..', '..', 'config'))
-const logger = require(path.join(__dirname, '..', 'logger'))
+const logger = require('logger').getLogger()
 const fs = require('fs')
 const handlebars = require('handlebars')
 
@@ -20,22 +20,26 @@ fs.readFile(path.join(__dirname, 'email.html'), { encoding: 'UTF-8' }, (err, dat
   template = handlebars.compile(data)
 })
 
-function sendComunicationFromPartners (receivers, comunication) {
-  //TODO if (process.env.NODE_ENV !== 'production') { return }
-
-  //TODO receivers.push(config.COORDINATION_EMAIL)
-
+function send (source, receivers, comunication) {
   receivers.forEach(receiver => {
     let data = {
       from: 'Mailgun <mailgun@sinfo.org>',
       to: receiver,
-      subject: '[SINFO] Comunication from partners - ' + comunication.subject,
+      subject: `[${source.toUpperCase()}] ${comunication.subject}`,
       html: template(comunication)
     }
 
     mailgun.messages().send(data, function (error, body) {
-      if (error) { logger.error(error) }
-    });
+      if (error) {
+        logger.error(error)
+      } else {
+        logger.info({
+          source: source,
+          receivers: receivers,
+          data: data
+        })
+      }
+    })
   })
 }
 
@@ -43,6 +47,6 @@ module.exports = {
   name: 'mailgun',
   version: '1.0.0',
   register: async (server, options) => {
-    server.method('mailgun.sendComunicationFromPartners', sendComunicationFromPartners)
+    server.method('mailgun.send', send)
   }
 }
