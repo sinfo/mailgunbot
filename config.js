@@ -9,7 +9,7 @@ const config = {
     ? [ 'coordination@sinfo.org', 'devteam@sinfo.org' ]
     : [ 'francisco.pereira@sinfo.org' ],
 
-  LOGENTRIES_TOKEN: process.env.MAILGUN_LOGENTRIES_TOKEN,
+  LOGENTRIES_TOKEN: process.env.MAILGUNBOT_LOGENTRIES_TOKEN,
 
   MAILGUN: {
     API_KEY: process.env.MAILGUNBOT_MAILGUN_API_KEY,
