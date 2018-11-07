@@ -25,7 +25,7 @@ function send (source, receivers, comunication) {
     let data = {
       from: 'Mailgun <mailgun@sinfo.org>',
       to: receiver,
-      subject: `[${source.toUpperCase()}] ${comunication.subject}`,
+      subject: `[${source.toUpperCase()}]`,
       html: template(comunication)
     }
 
